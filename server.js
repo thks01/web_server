@@ -109,7 +109,7 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
 
   connection.query(
-    "SELECT u.id, u.email, g.group_type FROM bitcoin.users AS u JOIN bitcoin.groups AS g ON u.group_num = g.group_id WHERE u.email=? AND u.password=?",
+    "SELECT u.id, u.email, g.group_type FROM sys.users AS u JOIN sys.groups AS g ON u.group_num = g.group_id WHERE u.email=? AND u.password=?",
     [email, password],
     (err, result) => {
       if (err) {
