@@ -127,8 +127,9 @@ app.post("/login", (req, res) => {
 
 app.post("/survey", (req, res) => {
   const body = req.body;
+  console.log(body);
   connection.query(
-    "UPDATE sys.users SET age = ?, gender = ?, eduBackground = ?, degree = ? WHERE id = ?",
+    "UPDATE users SET age = ?, gender = ?, eduBackground = ?, degree = ? WHERE id = ?",
     [body.age, body.gender, body.eduBackground, body.degree, body.id],
     (err, result) => {
       if (err) {
