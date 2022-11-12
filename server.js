@@ -85,13 +85,13 @@ app.post("/register", (req, res) => {
             );
 
             connection.query(
-              "SELECT group_size FROM bitcoin.groups WHERE group_id = ?",
+              "SELECT group_size FROM sys.groups WHERE group_id = ?",
               [groupNum],
               (err, result) => {
                 if (result) {
                   let group_size = result[0]["group_size"] + 1;
                   connection.query(
-                    "UPDATE bitcoin.groups SET group_size = ? WHERE group_id = ?",
+                    "UPDATE sys.groups SET group_size = ? WHERE group_id = ?",
                     [group_size, groupNum]
                   );
                 }
@@ -114,11 +114,12 @@ app.post("/login", (req, res) => {
     (err, result) => {
       if (err) {
         res.send({ err: err });
-      }
-      if (result.length > 0) {
-        res.send(result);
       } else {
-        res.status(404).send({ message: "실패" });
+        if (result.length > 0) {
+          res.send(result);
+        } else {
+          res.status(404).send({ message: "실패" });
+        }
       }
     }
   );
@@ -127,7 +128,7 @@ app.post("/login", (req, res) => {
 app.post("/survey", (req, res) => {
   const body = req.body;
   connection.query(
-    "UPDATE bitcoin.users SET age = ?, gender = ?, eduBackground = ?, degree = ? WHERE id = ?",
+    "UPDATE sys.users SET age = ?, gender = ?, eduBackground = ?, degree = ? WHERE id = ?",
     [body.age, body.gender, body.eduBackground, body.degree, body.id]
   );
 });
@@ -135,7 +136,7 @@ app.post("/survey", (req, res) => {
 app.post("/findpassword", (req, res) => {
   const body = req.body;
   connection.query(
-    "SELECT password from bitcoin.users WHERE email = ?",
+    "SELECT password from sys.users WHERE email = ?",
     [body.email],
     (err, result) => {
       if (err) {
@@ -153,14 +154,14 @@ app.post("/findpassword", (req, res) => {
 app.post("/coinandcash", (req, res) => {
   const body = req.body;
   connection.query(
-    "SELECT group_num from bitcoin.users WHERE id = ?",
+    "SELECT group_num from sys.users WHERE id = ?",
     [body.id],
     (err, result) => {
       if (err) {
         res.send({ err: err });
       } else {
         connection.query(
-          "SELECT num_of_coins, amount_of_cash from bitcoin.groups WHERE group_id = ?",
+          "SELECT num_of_coins, amount_of_cash from sys.groups WHERE group_id = ?",
           [result[0]["group_num"]],
           (err, result) => {
             if (err) {
@@ -179,14 +180,14 @@ app.post("/membersdecision", (req, res) => {
   const body = req.body;
   let col_name = `init_price_${body.test_num}`;
   connection.query(
-    "SELECT group_num from bitcoin.users WHERE id = ?",
+    "SELECT group_num from sys.users WHERE id = ?",
     [body.id],
     (err, result) => {
       if (err) {
         res.send({ err: err });
       } else {
         connection.query(
-          `SELECT user_id, ${col_name} from bitcoin.prediction WHERE group_id = ?`,
+          `SELECT user_id, ${col_name} from sys.prediction WHERE group_id = ?`,
           [result[0]["group_num"]],
           (err, result) => {
             if (err) {
@@ -207,18 +208,18 @@ app.post("/initialPrice", (req, res) => {
   let init_dec_time_name = `init_dec_time_${body.test_num}`;
   let init_group_mean_name = `init_group_mean_${body.test_num}`;
   connection.query(
-    `UPDATE bitcoin.prediction SET ${init_price_name} = ?, ${init_dec_time_name} = ? WHERE user_id = ?`,
+    `UPDATE sys.prediction SET ${init_price_name} = ?, ${init_dec_time_name} = ? WHERE user_id = ?`,
     [body.initialPrice, body.predTime, body.id],
     (err, result) => {
       if (result) {
         connection.query(
-          "SELECT group_num FROM bitcoin.users WHERE id = ?",
+          "SELECT group_num FROM sys.users WHERE id = ?",
           [body.id],
           (err, result) => {
             if (result) {
               let groupNum = result[0]["group_num"];
               connection.query(
-                `SELECT ${init_price_name} FROM bitcoin.prediction WHERE group_id = ?`,
+                `SELECT ${init_price_name} FROM sys.prediction WHERE group_id = ?`,
                 [groupNum],
                 (err, result) => {
                   if (result) {
@@ -233,7 +234,7 @@ app.post("/initialPrice", (req, res) => {
                     }
                     mean_of_group /= total;
                     connection.query(
-                      `UPDATE bitcoin.groups SET ${init_group_mean_name} = ? WHERE group_id = ?`,
+                      `UPDATE sys.groups SET ${init_group_mean_name} = ? WHERE group_id = ?`,
                       [mean_of_group, groupNum],
                       (err, result) => {
                         if (err) {
@@ -270,7 +271,7 @@ app.post("/whetherToChange", (req, res) => {
   }
 
   connection.query(
-    `UPDATE bitcoin.prediction SET ${whether_to_change_name} = ?, ${second_dec_time_name} = ? WHERE user_id = ?`,
+    `UPDATE sys.prediction SET ${whether_to_change_name} = ?, ${second_dec_time_name} = ? WHERE user_id = ?`,
     [binaryValue, body.predTime, body.id],
     (err, result) => {
       if (result) {
@@ -290,18 +291,18 @@ app.post("/finalPrice", (req, res) => {
   let final_group_mean_name = `final_group_mean_${body.test_num}`;
 
   connection.query(
-    `UPDATE bitcoin.prediction SET ${final_price_name} = ?, ${final_dec_time_name} = ? WHERE user_id = ?`,
+    `UPDATE sys.prediction SET ${final_price_name} = ?, ${final_dec_time_name} = ? WHERE user_id = ?`,
     [body.finalPrice, body.predTime, body.id],
     (err, result) => {
       if (result) {
         connection.query(
-          "SELECT group_num FROM bitcoin.users WHERE id = ?",
+          "SELECT group_num FROM sys.users WHERE id = ?",
           [body.id],
           (err, result) => {
             if (result) {
               let groupNum = result[0]["group_num"];
               connection.query(
-                `SELECT ${final_price_name} FROM bitcoin.prediction WHERE group_id = ?`,
+                `SELECT ${final_price_name} FROM sys.prediction WHERE group_id = ?`,
                 [groupNum],
                 (err, result) => {
                   if (result) {
@@ -316,7 +317,7 @@ app.post("/finalPrice", (req, res) => {
                     }
                     mean_of_group /= total;
                     connection.query(
-                      `UPDATE bitcoin.groups SET ${final_group_mean_name} = ? WHERE group_id = ?`,
+                      `UPDATE sys.groups SET ${final_group_mean_name} = ? WHERE group_id = ?`,
                       [mean_of_group, groupNum],
                       (err, result) => {
                         if (err) {
@@ -344,3 +345,4 @@ app.post("/finalPrice", (req, res) => {
 app.listen(port, () => {
   console.log(`connect at http://localhost:${port} !!!`);
 });
+
