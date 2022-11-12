@@ -129,8 +129,20 @@ app.post("/survey", (req, res) => {
   const body = req.body;
   connection.query(
     "UPDATE sys.users SET age = ?, gender = ?, eduBackground = ?, degree = ? WHERE id = ?",
-    [body.age, body.gender, body.eduBackground, body.degree, body.id]
-  );
+    [body.age, body.gender, body.eduBackground, body.degree, body.id],
+    (err, result) => {
+      if (err) {
+        console.log(err)
+        res.send({ err: err });
+      }
+      if (result.length > 0) {
+        console.log(result)
+        res.send(result);
+      } else {
+        console.log(result)
+        res.status(404).send({ message: "실패" });
+      }
+  ), ;
 });
 
 app.post("/findpassword", (req, res) => {
