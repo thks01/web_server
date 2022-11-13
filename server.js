@@ -355,7 +355,7 @@ app.post("/finalPrice", (req, res) => {
 app.post("/suggestion", (req, res) => {
   const body = req.body;
   connection.query(
-    `SELECT ${body.aiPredColumn} from bitcoin.groups WHERE group_type = ?`,
+    `SELECT ${body.aiPredColumn} from sys.groups WHERE group_type = ?`,
     [body.groupType],
     (err, result) => {
       if (err) {
