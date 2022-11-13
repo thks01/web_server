@@ -352,6 +352,24 @@ app.post("/finalPrice", (req, res) => {
   );
 });
 
+app.post("/suggestion", (req, res) => {
+  const body = req.body;
+  connection.query(
+    `SELECT ${body.aiPredColumn} from bitcoin.groups WHERE group_type = ?`,
+    [body.groupType],
+    (err, result) => {
+      if (err) {
+        res.send({ err: err });
+      }
+      if (result.length > 0) {
+        res.send(result);
+      } else {
+        res.status(404).send({ message: "실패" });
+      }
+    }
+  );
+});
+
 app.listen(port, () => {
   console.log(`connect at http://localhost:${port} !!!`);
 });
